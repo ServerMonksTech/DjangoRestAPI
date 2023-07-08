@@ -1,19 +1,27 @@
 from django.shortcuts import render
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.views import APIView
+from .serializer import CategorySerializer
 from .models import Category
 # Create your views here.
+from rest_framework.permissions import IsAuthenticated
 
-@api_view(['POST'])
-def create_category(request):
-    category_name = request.data.get('category')
-    cat = Category.objects.create(name=category_name)
-    cat_data = Category.objects.all().values()
-    return Response({"data": cat_data})
+class CategoryView(APIView):
+    permission_classes = [IsAuthenticated, ]
+    def get(self, request,id=None):
+        print(request.user.id)
+        if id is not None:
+            category = Category.objects.filter(id=id).values()
+        else:
+            category = Category.objects.all().values()
+        return Response({"category": category})
+    
+    def post(self,request):
+        serializer = CategorySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
 
 
-@api_view(['DELETE'])
-def delete_category(request,id):
-    Category.objects.filter(id=id).delete()
-    cat_data = Category.objects.all().values()
-    return Response({"data": cat_data})

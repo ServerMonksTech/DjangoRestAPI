@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import create_category,delete_category
+from .views import CategoryView
 urlpatterns = [
-    path("create-category/", create_category, name="create-category"),
-    path("delete-category/<int:id>", delete_category, name="delete-category"),
+    path("category/", CategoryView.as_view(), name="category-views"),
+    path("category/<int:id>", CategoryView.as_view(), name="category-views"),
+
 ]
